@@ -15,7 +15,8 @@ services:
     depends_on:
       - db
     environment:
-      DB_HOST: db
+      DB_ENDPOINT: db
+      DB_PORT: 3306
       DB_USER: root
       DB_PASSWORD: admin123
 
@@ -27,7 +28,8 @@ services:
     depends_on:
       - db
     environment:
-      DB_HOST: db
+      DB_ENDPOINT: db
+      DB_PORT: 3306
       DB_USER: root
       DB_PASSWORD: admin123
 
