@@ -7,8 +7,6 @@ services:
     container_name: db_proyecto
     environment:
       MYSQL_ROOT_PASSWORD: password_root
-      MYSQL_USER: user_duoc
-      MYSQL_PASSWORD: password_duoc
       MYSQL_DATABASE: db_despacho_ventas
     ports:
       - "3306:3306"
@@ -25,7 +23,7 @@ services:
       - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://base-datos:3306/db_despacho_ventas
-      - SPRING_DATASOURCE_USERNAME=user_duoc
+      - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=password_duoc
     depends_on:
       - base-datos
@@ -40,7 +38,7 @@ services:
       - "8081:8081"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://base-datos:3306/db_despacho_ventas
-      - SPRING_DATASOURCE_USERNAME=user_duoc
+      - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=password_duoc
     depends_on:
       - base-datos
