@@ -25,7 +25,7 @@ jobs:
           aws ssm send-command \
             --instance-ids "${{secrets.AWS_EC2_DATA_ID}}" \
             --document-name "AWS-RunShellScript" \
-            --parameters '{"commands":["sudo docker pull mysql:8.0","sudo docker stop db_proyecto || true","sudo docker rm db_proyecto || true","sudo docker run -d --name db_proyecto -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password_root -e MYSQL_USER=user_duoc -e MYSQL_PASSWORD=password_duoc -e MYSQL_DATABASE=db_despacho_ventas -v mysql_data:/var/lib/mysql mysql:8.0"]}' \
+            --parameters '{"commands":["sudo docker pull mysql:8.0","sudo docker stop db_proyecto || true","sudo docker rm db_proyecto || true","sudo docker run -d --name db_proyecto -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password_root -e MYSQL_DATABASE=db_despacho_ventas -v mysql_data:/var/lib/mysql mysql:8.0"]}' \
             --region us-east-1
 
   # ==========================================
