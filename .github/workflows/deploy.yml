@@ -62,7 +62,7 @@ jobs:
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --instance-ids "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
-            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest","sudo docker stop tienda-back-despachos || true","sudo docker rm tienda-back-despachos || true","sudo docker run -d --name tienda-back-despachos -p 8082:8082 -e DB_HOST=${{ secrets.DB_INSTANCE_IP }} -e DB_USER=root -e DB_PASSWORD=admin123 ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest"]}' \
+            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest","sudo docker stop tienda-back-despachos || true","sudo docker rm tienda-back-despachos || true","sudo docker run -d --name tienda-back-despachos -p 8082:8082 -e DB_ENDPOINT=${{ secrets.DB_INSTANCE_IP }} -e DB_PORT=3306 -e DB_USER=root -e DB_PASSWORD=admin123 ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest"]}' \
             --region us-east-1
 
   # ==========================================
@@ -99,7 +99,7 @@ jobs:
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --instance-ids "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
-            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-ventas:latest","sudo docker stop tienda-back-ventas || true","sudo docker rm tienda-back-ventas || true","sudo docker run -d --name tienda-back-ventas -p 8081:8081 -e DB_HOST=${{ secrets.DB_INSTANCE_IP }} -e DB_USER=root -e DB_PASSWORD=admin123 ${{ secrets.DOCKERHUB_USERNAME }}/back-ventas:latest"]}' \
+            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-ventas:latest","sudo docker stop tienda-back-ventas || true","sudo docker rm tienda-back-ventas || true","sudo docker run -d --name tienda-back-ventas -p 8081:8081 -e DB_ENDPOINT=${{ secrets.DB_INSTANCE_IP }} -e DB_PORT=3306 -e DB_USER=root -e DB_PASSWORD=admin123 ${{ secrets.DOCKERHUB_USERNAME }}/back-ventas:latest"]}' \
             --region us-east-1
 
   # ==========================================
