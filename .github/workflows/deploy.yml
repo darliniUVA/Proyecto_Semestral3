@@ -58,12 +58,16 @@ jobs:
 
       - name: Build y Push Backend Despachos
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/back-despachos:latest "./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO"
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/back-despachos:latest \
+            -f "./proyecto semestral/back-Despachos_SpringBoot/Dockerfile" \
+            "./proyecto semestral/back-Despachos_SpringBoot"
           docker push ${{ secrets.DOCKER_USERNAME }}/back-despachos:latest
 
       - name: Build y Push Backend Ventas
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/back-ventas:latest "./back-Ventas_SpringBoot/Springboot-API-REST"
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/back-ventas:latest \
+            -f "./proyecto semestral/back-Ventas_SpringBoot/Dockerfile" \
+            "./proyecto semestral/back-Ventas_SpringBoot"
           docker push ${{ secrets.DOCKER_USERNAME }}/back-ventas:latest
 
       - name: Configurar credenciales AWS
@@ -112,7 +116,9 @@ jobs:
 
       - name: Build y Push Frontend
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/front-despacho:latest "./front_despacho"
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/front-despacho:latest \
+            -f "./proyecto semestral/front_despacho/Dockerfile" \
+            "./proyecto semestral/front_despacho"
           docker push ${{ secrets.DOCKER_USERNAME }}/front-despacho:latest
 
       - name: Configurar credenciales AWS
