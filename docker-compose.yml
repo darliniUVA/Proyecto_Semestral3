@@ -1,18 +1,19 @@
 version: "3.8"
 
 services:
-  # 1. BASE DE DATOS (PostgreSQL para los Microservicios)
+  # 1. BASE DE DATOS (MySQL para los Microservicios)
   base-datos:
-    image: postgres:15-alpine
+    image: mysql:8.0
     container_name: db_proyecto
     environment:
-      POSTGRES_USER: user_duoc
-      POSTGRES_PASSWORD: password_duoc
-      POSTGRES_DB: db_despacho_ventas
+      MYSQL_ROOT_PASSWORD: password_root
+      MYSQL_USER: user_duoc
+      MYSQL_PASSWORD: password_duoc
+      MYSQL_DATABASE: db_despacho_ventas
     ports:
-      - "5433:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     networks:
       - red_devops
 
@@ -23,7 +24,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://base-datos:5432/db_despacho_ventas
+      - SPRING_DATASOURCE_URL=jdbc:mysql://base-datos:3306/db_despacho_ventas
       - SPRING_DATASOURCE_USERNAME=user_duoc
       - SPRING_DATASOURCE_PASSWORD=password_duoc
     depends_on:
@@ -38,7 +39,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://base-datos:5432/db_despacho_ventas
+      - SPRING_DATASOURCE_URL=jdbc:mysql://base-datos:3306/db_despacho_ventas
       - SPRING_DATASOURCE_USERNAME=user_duoc
       - SPRING_DATASOURCE_PASSWORD=password_duoc
     depends_on:
@@ -59,7 +60,7 @@ services:
       - red_devops
 
 volumes:
-  postgres_data:
+  mysql_data:
 
 networks:
   red_devops:

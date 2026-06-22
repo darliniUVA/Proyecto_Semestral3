@@ -25,7 +25,7 @@ jobs:
           aws ssm send-command \
             --instance-ids "${{secrets.AWS_EC2_DATA_ID}}" \
             --document-name "AWS-RunShellScript" \
-            --parameters '{"commands":["sudo docker pull postgres:15-alpine","sudo docker stop db_proyecto || true","sudo docker rm db_proyecto || true","sudo docker run -d --name db_proyecto -p 5432:5432 -e POSTGRES_USER=user_duoc -e POSTGRES_PASSWORD=password_duoc -e POSTGRES_DB=db_despacho_ventas -v postgres_data:/var/lib/postgresql/data postgres:15-alpine"]}' \
+            --parameters '{"commands":["sudo docker pull mysql:8.0","sudo docker stop db_proyecto || true","sudo docker rm db_proyecto || true","sudo docker run -d --name db_proyecto -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password_root -e MYSQL_USER=user_duoc -e MYSQL_PASSWORD=password_duoc -e MYSQL_DATABASE=db_despacho_ventas -v mysql_data:/var/lib/mysql mysql:8.0"]}' \
             --region us-east-1
 
   # ==========================================
@@ -62,7 +62,7 @@ jobs:
           aws ssm send-command \
             --instance-ids "${{secrets.AWS_EC2_BACKEND_ID}}" \
             --document-name "AWS-RunShellScript" \
-            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKER_USERNAME }}/back-despachos:latest","sudo docker stop api_despachos || true","sudo docker rm api_despachos || true","sudo docker run -d --name api_despachos -p 8081:8081 -e SPRING_DATASOURCE_URL=jdbc:postgresql://10.0.152.151:5432/db_despacho_ventas -e SPRING_DATASOURCE_USERNAME=user_duoc -e SPRING_DATASOURCE_PASSWORD=password_duoc ${{ secrets.DOCKER_USERNAME }}/back-despachos:latest"]}' \
+            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKER_USERNAME }}/back-despachos:latest","sudo docker stop api_despachos || true","sudo docker rm api_despachos || true","sudo docker run -d --name api_despachos -p 8081:8081 -e SPRING_DATASOURCE_URL=jdbc:mysql://10.0.152.151:3306/db_despacho_ventas -e SPRING_DATASOURCE_USERNAME=user_duoc -e SPRING_DATASOURCE_PASSWORD=password_duoc ${{ secrets.DOCKER_USERNAME }}/back-despachos:latest"]}' \
             --region us-east-1
 
   # ==========================================
@@ -99,7 +99,7 @@ jobs:
           aws ssm send-command \
             --instance-ids "${{secrets.AWS_EC2_BACKEND_ID}}" \
             --document-name "AWS-RunShellScript" \
-            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKER_USERNAME }}/back-ventas:latest","sudo docker stop api_ventas || true","sudo docker rm api_ventas || true","sudo docker run -d --name api_ventas -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://10.0.152.151:5432/db_despacho_ventas -e SPRING_DATASOURCE_USERNAME=user_duoc -e SPRING_DATASOURCE_PASSWORD=password_duoc ${{ secrets.DOCKER_USERNAME }}/back-ventas:latest"]}' \
+            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKER_USERNAME }}/back-ventas:latest","sudo docker stop api_ventas || true","sudo docker rm api_ventas || true","sudo docker run -d --name api_ventas -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:mysql://10.0.152.151:3306/db_despacho_ventas -e SPRING_DATASOURCE_USERNAME=user_duoc -e SPRING_DATASOURCE_PASSWORD=password_duoc ${{ secrets.DOCKER_USERNAME }}/back-ventas:latest"]}' \
             --region us-east-1
 
   # ==========================================
