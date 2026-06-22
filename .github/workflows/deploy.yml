@@ -63,26 +63,8 @@ jobs:
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --instance-ids "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
-            --parameters '{"commands":[
-              "set -e",
-              "echo \"Esperando a que la base de datos esté disponible...\"",
-              "DB_IP=\"${{ secrets.DB_INSTANCE_IP }}\"",
-              "until (echo > /dev/tcp/$DB_IP/3306) &>/dev/null; do sleep 2; done",
-              "echo \"Base de datos lista. Descargando imagen...\"",
-              "sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest",
-              "sudo docker stop tienda-back-despachos || true",
-              "sudo docker rm tienda-back-despachos || true",
-              "sudo docker run -d --name tienda-back-despachos --restart always -p 8082:8082 \
-                -e DB_ENDPOINT=$DB_IP \
-                -e DB_PORT=3306 \
-                -e DB_USER=root \
-                -e DB_PASSWORD=admin123 \
-                ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest",
-              "echo \"Contenedor iniciado. Verificando estado...\"",
-              "sudo docker ps -a --filter name=tienda-back-despachos"
-            ]}' \
+            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest","sudo docker stop tienda-back-despachos || true","sudo docker rm tienda-back-despachos || true","sudo docker run -d --name tienda-back-despachos -p 8082:8082 -e DB_ENDPOINT=${{ secrets.DB_INSTANCE_IP }} -e DB_PORT=3306 -e DB_USER=root -e DB_PASSWORD=admin123 ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest"]}' \
             --region us-east-1
-
   # ==========================================
   # 3. BACKEND VENTAS (MEJORADO)
   # ==========================================
@@ -118,24 +100,7 @@ jobs:
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --instance-ids "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
-            --parameters '{"commands":[
-              "set -e",
-              "echo \"Esperando a que la base de datos esté disponible...\"",
-              "DB_IP=\"${{ secrets.DB_INSTANCE_IP }}\"",
-              "until (echo > /dev/tcp/$DB_IP/3306) &>/dev/null; do sleep 2; done",
-              "echo \"Base de datos lista. Descargando imagen...\"",
-              "sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-ventas:latest",
-              "sudo docker stop tienda-back-ventas || true",
-              "sudo docker rm tienda-back-ventas || true",
-              "sudo docker run -d --name tienda-back-ventas --restart always -p 8081:8081 \
-                -e DB_ENDPOINT=$DB_IP \
-                -e DB_PORT=3306 \
-                -e DB_USER=root \
-                -e DB_PASSWORD=admin123 \
-                ${{ secrets.DOCKERHUB_USERNAME }}/back-ventas:latest",
-              "echo \"Contenedor iniciado. Verificando estado...\"",
-              "sudo docker ps -a --filter name=tienda-back-ventas"
-            ]}' \
+            --parameters '{"commands":["sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-ventas:latest","sudo docker stop tienda-back-ventas || true","sudo docker rm tienda-back-ventas || true","sudo docker run -d --name tienda-back-ventas -p 8081:8081 -e DB_ENDPOINT=${{ secrets.DB_INSTANCE_IP }} -e DB_PORT=3306 -e DB_USER=root -e DB_PASSWORD=admin123 ${{ secrets.DOCKERHUB_USERNAME }}/back-ventas:latest"]}' \
             --region us-east-1
   # ==========================================
   # 4. FRONTEND
