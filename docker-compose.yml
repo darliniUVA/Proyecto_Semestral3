@@ -1,48 +1,66 @@
 version: "3.8"
 
 services:
-  front-despacho:
-    build: ./front_despacho
-    container_name: tienda-front_despacho
+  # 1. BASE DE DATOS (PostgreSQL para los Microservicios)
+  base-datos:
+    image: postgres:15-alpine
+    container_name: db_proyecto
+    environment:
+      POSTGRES_USER: user_duoc
+      POSTGRES_PASSWORD: password_duoc
+      POSTGRES_DB: db_despacho_ventas
     ports:
-      - "8080:80"
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - red_devops
 
+  # 2. BACKEND: VENTAS (Java Spring Boot)
   back-ventas:
-    build: ./back-Ventas_SpringBoot/Springboot-API-REST
-    container_name: tienda-back-ventas
+    build: ./proyecto semestral/back-Ventas_SpringBoot
+    container_name: api_ventas
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://base-datos:5432/db_despacho_ventas
+      - SPRING_DATASOURCE_USERNAME=user_duoc
+      - SPRING_DATASOURCE_PASSWORD=password_duoc
+    depends_on:
+      - base-datos
+    networks:
+      - red_devops
+
+  # 3. BACKEND: DESPACHOS (Java Spring Boot)
+  back-despachos:
+    build: ./proyecto semestral/back-Despachos_SpringBoot
+    container_name: api_despachos
     ports:
       - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://base-datos:5432/db_despacho_ventas
+      - SPRING_DATASOURCE_USERNAME=user_duoc
+      - SPRING_DATASOURCE_PASSWORD=password_duoc
     depends_on:
-      - db
-    environment:
-      DB_ENDPOINT: db
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: admin123
+      - base-datos
+    networks:
+      - red_devops
 
-  back-despachos:
-    build: ./back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
-    container_name: tienda-back-despachos
+  # 4. FRONTEND (Nginx sirviendo la App de Despacho)
+  frontend:
+    build: ./proyecto semestral/front_despacho
+    container_name: app_frontend
     ports:
-      - "8082:8082"
+      - "80:80"
     depends_on:
-      - db
-    environment:
-      DB_ENDPOINT: db
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: admin123
-
-  db:
-    image: mysql:8
-    container_name: tienda-db
-    environment:
-      MYSQL_ROOT_PASSWORD: admin123
-      MYSQL_DATABASE: tienda_despachos
-    ports:
-      - "3306:3306"
-    volumes:
-      - dbdata:/var/lib/mysql
+      - back-ventas
+      - back-despachos
+    networks:
+      - red_devops
 
 volumes:
-  dbdata:
+  postgres_data:
+
+networks:
+  red_devops:
+    driver: bridge
