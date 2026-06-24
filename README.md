@@ -1,6 +1,6 @@
 # ISY1101 — EP2 Proyecto Semestral
 **Despacho Dashboard — Innovatech Chile**
-**Integrantes:** Mario Loyola — Lucia Salazar
+**Integrantes:** Mario Loyola — Darleen Ortiz - Juliana Vega
 
 ---
 
