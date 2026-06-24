@@ -1,0 +1,59 @@
+name: CI/CD Pipeline para Tienda EKS
+
+on:
+  push:
+    branches: [ "deploy" ] 
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar credenciales de AWS
+        run: |
+          mkdir -p ~/.aws
+          cat > ~/.aws/credentials << EOF
+          [default]
+          aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_session_token=${{ secrets.AWS_SESSION_TOKEN }}
+          EOF
+          cat > ~/.aws/config << EOF
+          [default]
+          region=us-east-1
+          EOF
+
+      - name: Build, Tag y Push al Registro
+        run: |
+          TAG="eks-${{ github.run_number }}"
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          
+          # Construcción hardcodeada
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/back-ventas:$TAG ./proyecto\ semestral/back-Ventas_SpringBoot
+          docker push ${{ secrets.DOCKER_USERNAME }}/back-ventas:$TAG
+          
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/front-despacho:$TAG ./proyecto\ semestral/front_despacho
+          docker push ${{ secrets.DOCKER_USERNAME }}/front-despacho:$TAG
+          
+          # Nota: GITHUB_ENV es solo una forma de pasar datos entre pasos en el CI, no es un archivo .env de tu app
+          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Instalar kubectl y actualizar EKS
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+          aws eks update-kubeconfig --region us-east-1 --name cluster-tienda
+
+      - name: Desplegar en EKS
+        run: |
+          # Actualización directa sobre el namespace 'tienda'
+          kubectl -n tienda set image deployment/backend-deployment backend-container=${{ secrets.DOCKER_USERNAME }}/back-ventas:${{ env.IMAGE_TAG }}
+          kubectl -n tienda set image deployment/frontend-deployment frontend-container=${{ secrets.DOCKER_USERNAME }}/front-despacho:${{ env.IMAGE_TAG }}
+          
+          # Validación de despliegue
+          kubectl -n tienda rollout status deployment/backend-deployment
+          kubectl -n tienda rollout status deployment/frontend-deployment
