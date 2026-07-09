@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
+  name: backend
   namespace: tienda
 spec:
   replicas: 1
@@ -15,25 +15,14 @@ spec:
     spec:
       containers:
       - name: backend-container
-        image: darlinimiel/back-ventas:latest
+        image: docker.io/darlinimiel/back-ventas:latest
         ports:
         - containerPort: 8080
-        env:
+       env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://10.0.148.252:3306/db_despacho_ventas"
         - name: SPRING_DATASOURCE_USERNAME
           value: "root"
         - name: SPRING_DATASOURCE_PASSWORD
           value: "password_duoc"
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-  namespace: tienda
-spec:
-  type: ClusterIP
-  selector:
-    app: backend
-  ports:
-  - protocol: TCP
-    port: 8080
-    targetPort: 8080

@@ -1,0 +1,58 @@
+name: CI/CD Pipeline EKS DockerHub
+
+on:
+  push:
+    branches: [ "deploy" ] # Ajustado a la rama que estabas usando
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        # Asegúrate de que los nombres de los Secrets en GitHub coincidan
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }} 
+
+    - name: Build and Push Backend
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/back-ventas:v1.0.${{ github.run_number }} "./proyecto semestral/back-Ventas_SpringBoot"
+        docker push ${{ secrets.DOCKER_USERNAME }}/back-ventas:v1.0.${{ github.run_number }} 
+
+    - name: Build and Push Frontend
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/front-despacho:v1.0.${{ github.run_number }} "./proyecto semestral/front_despacho"
+        docker push ${{ secrets.DOCKER_USERNAME }}/front-despacho:v1.0.${{ github.run_number }}
+
+    - name: Configure AWS Credentials
+      run: |
+        mkdir -p ~/.aws
+        cat > ~/.aws/credentials << EOF
+        [default]
+        aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws_session_token=${{ secrets.AWS_SESSION_TOKEN }}
+        EOF
+        cat > ~/.aws/config << EOF
+        [default]
+        region=us-east-1
+        EOF
+
+    - name: Update Kubeconfig
+      run: aws eks update-kubeconfig --region us-east-1 --name cluster-tienda
+
+    - name: Deploy to EKS
+      run: |
+        # Backend: El nombre del contenedor en tu YAML es backend-container
+        kubectl -n tienda set image deployment/backend backend-container=${{ secrets.DOCKER_USERNAME }}/back-ventas:v1.0.${{ github.run_number }}
+        
+        # Frontend: El nombre del contenedor en tu YAML es frontend
+        kubectl -n tienda set image deployment/frontend frontend=${{ secrets.DOCKER_USERNAME }}/front-despacho:v1.0.${{ github.run_number }}
+        
+        # Validaciones de Rolling Update
+        kubectl -n tienda rollout status deployment/backend
+        kubectl -n tienda rollout status deployment/frontend

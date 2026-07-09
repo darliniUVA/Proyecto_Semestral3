@@ -3,7 +3,7 @@ name: Pipeline CI/CD - Despliegue Automatizado (EP2)
 on:
   push:
     branches:
-      - deploy  # Se ejecuta estrictamente al hacer push a la rama deploy según la pauta
+      - deploy  
 
 jobs:
   # ==========================================
@@ -17,12 +17,10 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # Crítico para cuentas de estudiantes
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # MySQL crea user_duoc automáticamente con MYSQL_USER/MYSQL_PASSWORD
-      # solo en la primera inicialización. El CREATE USER IF NOT EXISTS
-      # garantiza que exista incluso si el volumen ya tenía datos previos.
+    
       - name: Asegurar Persistencia de Base de Datos y Usuario en EC2
         run: |
           aws ssm send-command \
@@ -38,10 +36,6 @@ jobs:
 
   # ==========================================
   # 2. BACKENDS (despachos + ventas en un solo job)
-  # NOTA: Ambos backends van al MISMO EC2. Si se despliegan
-  # en jobs paralelos, los comandos SSM llegan simultáneamente
-  # y el demonio Docker colapsa (race condition). Un solo job
-  # garantiza que los docker run se ejecuten de forma secuencial.
   # ==========================================
   deploy-backends:
     runs-on: ubuntu-latest
@@ -78,9 +72,6 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # Se envía un único comando SSM con todos los pasos en orden.
-      # --restart on-failure:5 permite que Spring Boot reintente
-      # conectarse a MySQL si tarda unos segundos en aceptar conexiones.
       - name: Deploy Backends via SSM (secuencial)
         run: |
           aws ssm send-command \
