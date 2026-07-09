@@ -43,7 +43,7 @@ jobs:
         EOF
 
     - name: Update Kubeconfig
-      run: aws eks update-kubeconfig --region us-east-1 --name cluster-tienda
+      run: aws eks update-kubeconfig --region us-east-1 --name tienda-cluster
 
     - name: Deploy to EKS
       run: |
