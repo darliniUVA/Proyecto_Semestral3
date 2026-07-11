@@ -18,11 +18,10 @@ spec:
         image: docker.io/darlinimiel/back-ventas:latest
         ports:
         - containerPort: 8080
-       env:
+        env:
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:mysql://10.0.148.252:3306/db_despacho_ventas"
         - name: SPRING_DATASOURCE_USERNAME
           value: "root"
         - name: SPRING_DATASOURCE_PASSWORD
           value: "password_duoc"
----
