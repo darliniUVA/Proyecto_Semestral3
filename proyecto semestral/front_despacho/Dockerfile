@@ -27,6 +27,8 @@ RUN touch /var/run/nginx.pid && \
 # Cambiamos al usuario de privilegios mínimos
 USER nginx
 
+RUN sed -i 's/80/8080/g' /etc/nginx/conf.d/default.conf
+
 # Exponer el puerto estándar de Nginx
 EXPOSE 80
 

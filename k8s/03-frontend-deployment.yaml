@@ -18,5 +18,5 @@ spec:
         # Asegúrate de poner el nombre exacto de tu imagen de front en Docker Hub aquí:
         image: docker.io/darlinimiel/front-despacho:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8080
 ---
